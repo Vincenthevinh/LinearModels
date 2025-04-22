@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import os
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error
 
@@ -13,15 +15,15 @@ def load_data(file_path):
     pd.DataFrame: Loaded data
     """
     try:
-        df = pd.read_csv(file_path, parse_dates=['Time'])
-        required_columns = ['Time', 'OZONE', 'NO2', 'temp', 'humidity', 'no2op1', 'no2op2', 'o3op1', 'o3op2']
+        df = pd.read_csv(file_path, parse_dates=['Timestamp'])
+        required_columns = ['Timestamp', 'OZONE', 'NO2', 'temp', 'humidity', 'no2op1', 'no2op2', 'o3op1', 'o3op2']
         if not all(col in df.columns for col in required_columns):
             raise ValueError(f"CSV must contain columns: {required_columns}")
         return df
     except Exception as e:
         raise ValueError(f"Error loading {file_path}: {str(e)}")
 
-def extract_features(df, include_hour=True):
+def extract_features(df, include_hour=False):
     """
     Extract features from DataFrame, optionally adding 'hour' from timestamp.
     
@@ -32,12 +34,16 @@ def extract_features(df, include_hour=True):
     Returns:
     pd.DataFrame: DataFrame with selected features
     """
+    # Task 1 - Use only voltage outputs
     features = ['o3op1', 'o3op2', 'no2op1', 'no2op2']
+    
+    # Task 2 - Add temperature, humidity, and time features
     if include_hour:
         features.extend(['temp', 'humidity'])
         df = df.copy()
-        df['hour'] = df['Time'].dt.hour
+        df['hour'] = df['Timestamp'].dt.hour
         features.append('hour')
+    
     return df[features]
 
 def scale_features(X):
@@ -67,3 +73,13 @@ def evaluate_model(model, X, y_true):
     """
     y_pred = model.predict(X)
     return mean_absolute_error(y_true, y_pred)
+
+def ensure_directory_exists(directory_path):
+    """
+    Create directory if it doesn't exist.
+    
+    Parameters:
+    directory_path (str): Path to directory
+    """
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)

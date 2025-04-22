@@ -1,9 +1,11 @@
 import pandas as pd
+import os
 from sklearn.linear_model import LinearRegression, Ridge, Lasso, SGDRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import GridSearchCV
 import pickle
-from utils import load_data, extract_features, scale_features, evaluate_model
+from utils import load_data, extract_features, scale_features, evaluate_model, ensure_directory_exists
 
 def train_linear_model():
     """
@@ -42,7 +44,7 @@ def train_linear_model():
         'SVR_Linear': {
             'model': SVR(kernel='linear'),
             'param_grid': {'C': [0.1, 1.0], 'epsilon': [0.1, 1.0]},
-            'loss': 'epsilon-insensitive'  # Changed from ε-insensitive
+            'loss': 'epsilon-insensitive'
         },
         'SGDRegressor_MAE': {
             'model': SGDRegressor(loss='epsilon_insensitive', epsilon=0, random_state=42, max_iter=1000),
@@ -55,7 +57,6 @@ def train_linear_model():
     results = {'Model': [], 'O3 MAE': [], 'NO2 MAE': [], 'Avg MAE': [], 'Loss Function': [], 'Best Params': []}
 
     # Train and evaluate models
-    from sklearn.model_selection import GridSearchCV
     for name, config in models.items():
         grid_search = GridSearchCV(
             config['model'],
@@ -111,6 +112,9 @@ def train_linear_model():
     best_model_o3.fit(X_train_scaled, y_train_o3)
     best_model_no2.fit(X_train_scaled, y_train_no2)
 
+    # Ensure models directory exists
+    ensure_directory_exists('.Source/models')
+
     # Save models
     models_dict = {
         'o3_model': best_model_o3,
@@ -118,4 +122,7 @@ def train_linear_model():
     }
     with open('./Source/models/linear_model.pkl', 'wb') as f:
         pickle.dump(models_dict, f)
-    print('Linear models saved as Source/models/linear_model.pkl')
+    print('Linear models saved as models/linear_model.pkl')
+
+if __name__ == "__main__":
+    train_linear_model()

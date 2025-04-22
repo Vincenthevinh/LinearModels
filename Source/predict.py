@@ -2,14 +2,14 @@ import pandas as pd
 import pickle
 from utils import extract_features, scale_features
 
-def predict_air_quality(input_data, model_path='./Source/models/advanced_model.pkl', task='task2'):
+def predict_air_quality(input_data, model_path='./models/advanced_model.pkl', task='task2'):
     """
     Predict OZONE and NO2 levels from input features.
     
     Parameters:
     input_data (dict or pd.DataFrame): Input with columns:
         - Task 1: no2op1, no2op2, o3op1, o3op2
-        - Task 2: Time, temp, humidity, no2op1, no2op2, o3op1, o3op2
+        - Task 2: Timestamp, temp, humidity, no2op1, no2op2, o3op1, o3op2
     model_path (str): Path to the .pkl file containing the models
     task (str): 'task1' or 'task2' to specify feature set
     
@@ -27,9 +27,9 @@ def predict_air_quality(input_data, model_path='./Source/models/advanced_model.p
         required_cols = ['no2op1', 'no2op2', 'o3op1', 'o3op2']
         include_hour = False
     else:  # task2
-        required_cols = ['Time', 'temp', 'humidity', 'no2op1', 'no2op2', 'o3op1', 'o3op2']
+        required_cols = ['Timestamp', 'temp', 'humidity', 'no2op1', 'no2op2', 'o3op1', 'o3op2']
         include_hour = True
-        input_df['Time'] = pd.to_datetime(input_df['Time'])
+        input_df['Timestamp'] = pd.to_datetime(input_df['Timestamp'])
     
     # Check for required columns
     if not all(col in input_df.columns for col in required_cols):
@@ -60,7 +60,7 @@ def predict_air_quality(input_data, model_path='./Source/models/advanced_model.p
 if __name__ == "__main__":
     # Example usage for Task 2
     sample_input_task2 = {
-        'Time': '2019-03-27 17:05:00',
+        'Timestamp': '2019-03-27 17:05:00',
         'temp': 41.2,
         'humidity': 28.9,
         'no2op1': 179.0,
@@ -79,10 +79,10 @@ if __name__ == "__main__":
     
     # Predict for Task 2
     print("Task 2 Prediction:")
-    predictions_task2 = predict_air_quality(sample_input_task2, model_path='./Source/models/advanced_model.pkl', task='task2')
+    predictions_task2 = predict_air_quality(sample_input_task2, model_path='./models/advanced_model.pkl', task='task2')
     print(f"Predictions: {predictions_task2}")
     
     # Predict for Task 1
     print("\nTask 1 Prediction:")
-    predictions_task1 = predict_air_quality(sample_input_task1, model_path='./Source/models/linear_model.pkl', task='task1')
+    predictions_task1 = predict_air_quality(sample_input_task1, model_path='./models/linear_model.pkl', task='task1')
     print(f"Predictions: {predictions_task1}")
